@@ -1,0 +1,13 @@
+# Security
+.env
+
+# Python Cache
+__pycache__/
+
+# Compiled C++ Binaries
+*.exe
+*.out
+
+# Dynamically Generated Files (Optional, but keeps repo clean)
+input.txt
+generate_input.py
