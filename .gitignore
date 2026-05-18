@@ -11,3 +11,4 @@ __pycache__/
 # Dynamically Generated Files (Optional, but keeps repo clean)
 input.txt
 generate_input.py
+.active_lang
