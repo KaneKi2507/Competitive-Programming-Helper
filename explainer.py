@@ -52,14 +52,28 @@ def analyze_cp_code(problem_data, cpp_code):
 
 if __name__ == "__main__":
     try:
+        # Load the problem data
         with open("problem.json", "r", encoding="utf-8") as f:
             scraped_data = json.load(f)
-        with open("solution.cpp", "r", encoding="utf-8") as f:
+            
+        # Check which language is active
+        if not os.path.exists(".active_lang"):
+            print("AI COACH FEEDBACK:\n❌ **Error:** No source code committed. Please click 'Commit Source' first.")
+            exit(1)
+            
+        with open(".active_lang", "r", encoding="utf-8") as f:
+            active_lang, target_file = f.read().strip().split(",")
+            
+        # Read the active code file
+        with open(target_file, "r", encoding="utf-8") as f:
             my_code = f.read()
             
-        feedback = analyze_cp_code(scraped_data, my_code)
-        # Streamlit relies on this exact string to parse the output
+        # Prepend the language metadata to the prompt so the AI knows the context
+        language_context = f"// Language: {active_lang}\n" + my_code
+            
+        feedback = analyze_cp_code(scraped_data, language_context)
         print("\nAI COACH FEEDBACK:")
         print(feedback)
+        
     except Exception as e:
         print(f"File Error: {e}")

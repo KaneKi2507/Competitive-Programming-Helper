@@ -130,14 +130,29 @@ col1, col2 = st.columns([1.2, 1], gap="large")
 with col1:
     st.subheader("Source Configuration")
     
-    default_code = ""
-    if os.path.exists("solution.cpp"):
-        with open("solution.cpp", "r", encoding="utf-8") as f:
-            default_code = f.read()
+    # --- Language Configuration Routing ---
+    LANG_CONFIG = {
+        "C++": {"file": "solution.cpp", "mode": "c_cpp", "default": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your C++ code here\n    return 0;\n}"},
+        "Python": {"file": "solution.py", "mode": "python", "default": "def solve():\n    # Write your Python code here\n    pass\n\nif __name__ == '__main__':\n    solve()"},
+        "Java": {"file": "Main.java", "mode": "java", "default": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Write your Java code here\n    }\n}"},
+        "C": {"file": "solution.c", "mode": "c_cpp", "default": "#include <stdio.h>\n\nint main() {\n    // Write your C code here\n    return 0;\n}"},
+        "Go": {"file": "solution.go", "mode": "golang", "default": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    // Write your Go code here\n}"},
+        "Rust": {"file": "solution.rs", "mode": "rust", "default": "fn main() {\n    // Write your Rust code here\n}"}
+    }
+    
+    selected_lang = st.selectbox("Select Language", list(LANG_CONFIG.keys()), label_visibility="collapsed")
+    lang_data = LANG_CONFIG[selected_lang]
+    target_file = lang_data["file"]
+    
+    # Load existing code or default boilerplate
+    current_code = lang_data["default"]
+    if os.path.exists(target_file):
+        with open(target_file, "r", encoding="utf-8") as f:
+            current_code = f.read()
 
-    cpp_code = st_ace(
-        value=default_code,
-        language="c_cpp",
+    source_code = st_ace(
+        value=current_code,
+        language=lang_data["mode"],
         theme="tomorrow_night",
         keybinding="vscode",
         font_size=14,
@@ -148,10 +163,16 @@ with col1:
     )
     
     if st.button("Commit Source"):
-        with open("solution.cpp", "w", encoding="utf-8") as f:
-            f.write(cpp_code)
-        st.toast("Source committed to local workspace.", icon="✅")
-
+        # Write the actual code file
+        with open(target_file, "w", encoding="utf-8") as f:
+            f.write(source_code)
+        
+        # Write a hidden pointer file so the backend knows what to execute
+        with open(".active_lang", "w", encoding="utf-8") as f:
+            f.write(f"{selected_lang},{target_file}")
+            
+        st.toast(f"Source committed as {target_file}", icon="✅")
+        
 with col2:
     st.subheader("Execution Parameters")
     
