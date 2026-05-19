@@ -3,6 +3,7 @@ from streamlit_ace import st_ace
 import subprocess
 import os
 
+os.environ["PYTHONIOENCODING"] = "utf-8"
 # --- Page Configuration ---
 st.set_page_config(
     page_title="CP Analysis Suite", 
@@ -19,6 +20,12 @@ st.markdown("""
     /* Smooth scrolling */
     html {
         scroll-behavior: smooth;
+    }
+    
+    /* --- Stop UI Dimming During Backend Processing --- */
+    [data-testid="stApp"] div {
+        opacity: 1 !important;
+        transition: none !important;
     }
     
     /* Base Theme */
@@ -172,7 +179,7 @@ with col1:
             f.write(f"{selected_lang},{target_file}")
             
         st.toast(f"Source committed as {target_file}", icon="✅")
-        
+
 with col2:
     st.subheader("Execution Parameters")
     
@@ -269,45 +276,37 @@ st.subheader("System Documentation")
 
 with st.container(border=True):
     st.markdown("""
-    ### 📖 What is this tool? (For Beginners)
-    Think of this app as an **automated proofreader and stress-tester** for your logic. 
-    When writing code to solve complex math or logic puzzles, it is incredibly easy to miss a rare edge case (like what happens if an input is zero, negative, or extremely large). 
-    
-    * **The AI Code Review** acts like a senior developer looking over your shoulder. It reads your code and gently points out blind spots without just giving away the answer.
-    * **The Automated Stress Test** actively tries to "break" your code by generating custom trick questions based on the problem's rules. If your code survives without crashing or timing out, you know it is bulletproof.
+    ### 📖 What is this tool?
+    Think of this app as your personal coding tutor and proofreader. 
+
+    When solving competitive programming puzzles, it is incredibly easy to miss a tricky "edge case" (like what happens if an input is zero, negative, or a massive number). This app helps you find those blind spots before you submit your code.
 
     ---
 
-    ### 💻 1. Source Editor (Left Panel)
-    This is your primary workspace. The editor natively supports standard VS Code IDE keybindings and features syntax highlighting for C/C++.
-    
-    | Action | Command / Button | Description |
-    | :--- | :--- | :--- |
-    | **Apply State** | `Ctrl + Enter` (in editor) | Registers your newly typed code with the browser interface. |
-    | **Save to Disk** | `Commit Source` button | Writes your applied code to the backend system. **You must click this before running any tests.** |
+    ### 💻 Step 1: Write Your Code (The Editor)
+    This is where you write your solution. 
+    1. **Pick your language** from the dropdown (Python, C++, Java, Go, C, or Rust).
+    2. **Write or paste your code** into the dark editor box.
+    3. **Save it:** Press `Ctrl + Enter` to apply your typing, and then click the red **Commit Source** button. *(You MUST click Commit Source before running any tests!)*
 
     ---
 
-    ### 🧠 2. AI Code Review
-    * **Purpose:** Static analysis and logical validation.
-    * **Behavior:** The AI engine cross-references your committed C++ code against the scraped problem constraints. It will calculate standard Time/Space complexities (e.g., warning you if an $O(N^2)$ algorithm is too slow for the problem) and pinpoint edge cases you missed.
+    ### 🧠 Step 2: AI Code Review
+    * **What it does:** It acts like a senior programmer looking over your shoulder.
+    * **How it works:** It reads the problem rules and looks at your code. It will gently point out logical mistakes or warn you if your code is too slow, but it **will not** just give you the exact answer. You still have to do the thinking!
 
     ---
 
-    ### ⚡ 3. Automated Stress Test
-    * **Purpose:** Dynamic execution and boundary verification.
-    * **Sequence:**
-        1. Compiles your `solution.cpp` binary via the local `g++` compiler.
-        2. Initiates the generative model to write a custom Python script that outputs boundary-compliant test cases.
-        3. Executes your compiled binary against the generated input.
-        4. Logs the final program output and exact execution time.
+    ### ⚡ Step 3: Automated Stress Test
+    * **What it does:** It actively tries to break your code.
+    * **How it works:** Instead of you manually typing in test numbers, the app's AI writes a custom script to generate random, super-hard trick questions based on the problem's rules. It feeds those numbers into your code to see if it crashes or takes too long to answer.
 
     ---
 
-    ### 🛑 Troubleshooting
-    If the **Run Stress Test** sequence throws a "System Crash Detected" alert, expand the Stack Trace log. This is almost always caused by one of two factors:
-    1. A syntax error in your C++ code causing `g++` to fail compilation.
-    2. The AI-generated Python testing script contained invalid syntax.
+    ### 🛑 Troubleshooting Crashes
+    If the Stress Test throws a red "System Crash" error, open the Stack Trace to see why. It usually happens for two reasons:
+    1. **Typo:** You have a syntax error in your code (like a missing semicolon) so it couldn't run.
+    2. **Infinite Loop:** Your code got stuck and took longer than 5 seconds to answer (Time Limit Exceeded).
     """)
 
 # --- Back to Top Anchor ---
